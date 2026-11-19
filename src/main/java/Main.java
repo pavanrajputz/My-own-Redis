@@ -26,9 +26,8 @@ public class Main {
             //getting the input
             InputStream input = clientSocket.getInputStream();
             byte[] buffer = new byte[1024];
-            int bytesRead = input.read(buffer);
-
-            while(bytesRead != -1) {
+            int bytesRead;
+            while((bytesRead = input.read(buffer)) != -1) {
                 OutputStream output = clientSocket.getOutputStream();
                 output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
             }
