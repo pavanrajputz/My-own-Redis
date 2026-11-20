@@ -16,18 +16,19 @@ public class Main {
         int port = 6379;
 
         try {
-            serverSocket = new ServerSocket(port);
-            // Since the tester restarts your program quite often, setting SO_REUSEADDR
-            // ensures that we don't run into 'Address already in use' errors
-            serverSocket.setReuseAddress(true);
-            // Wait for connection from client.
-            clientSocket = serverSocket.accept();
 
-            //getting the input
-            InputStream input = clientSocket.getInputStream();
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while((bytesRead = input.read(buffer)) != -1) {
+            while(true) {
+                serverSocket = new ServerSocket(port);
+                // Since the tester restarts your program quite often, setting SO_REUSEADDR
+                // ensures that we don't run into 'Address already in use' errors
+                serverSocket.setReuseAddress(true);
+                // Wait for connection from client.
+                clientSocket = serverSocket.accept();
+
+                //getting the input
+                InputStream input = clientSocket.getInputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead = input.read(buffer);
                 OutputStream output = clientSocket.getOutputStream();
                 output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
             }
