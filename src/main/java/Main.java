@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -16,8 +17,7 @@ public class Main {
         int port = 6379;
 
         try {
-
-            while(true) {
+            while(true){
                 serverSocket = new ServerSocket(port);
                 // Since the tester restarts your program quite often, setting SO_REUSEADDR
                 // ensures that we don't run into 'Address already in use' errors
@@ -25,18 +25,17 @@ public class Main {
                 // Wait for connection from client.
                 clientSocket = serverSocket.accept();
 
-                //getting the input
                 InputStream input = clientSocket.getInputStream();
-                byte[] buffer = new byte[1024];
-                int bytesRead = input.read(buffer);
+                Scanner sc = new Scanner(input);
+                System.out.println("====================================================================");
+                System.out.println(sc.nextLine());
+                System.out.println("====================================================================");
+
+                //sending the output
                 OutputStream output = clientSocket.getOutputStream();
                 output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
+                output.flush();
             }
-
-            //sending the output
-//            OutputStream output = clientSocket.getOutputStream();
-//            output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
-//            output.flush();
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         } finally {
