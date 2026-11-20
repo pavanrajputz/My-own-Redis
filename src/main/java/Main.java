@@ -26,15 +26,17 @@ public class Main {
                 clientSocket = serverSocket.accept();
 
                 InputStream input = clientSocket.getInputStream();
+                OutputStream output = clientSocket.getOutputStream();
                 Scanner sc = new Scanner(input);
                 System.out.println("====================================================================");
-                System.out.println(sc.nextLine());
+                while(sc.hasNextLine()){
+                    String nextLine = sc.nextLine();
+                    if (nextLine.contains("PING")) {
+                        output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
+                    }
+                }
                 System.out.println("====================================================================");
 
-                //sending the output
-                OutputStream output = clientSocket.getOutputStream();
-                output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
-                output.flush();
             }
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
