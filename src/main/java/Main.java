@@ -8,46 +8,51 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        // You can use print statements as follows for debugging, they'll be visible when running tests.
-        System.out.println("Logs from your program will appear here!");
 
-        //  Uncomment the code below to pass the first stage
-        ServerSocket serverSocket = null;
-        Socket clientSocket = null;
         int port = 6379;
 
-        try {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             while(true){
-                serverSocket = new ServerSocket(port);
+
                 // Since the tester restarts your program quite often, setting SO_REUSEADDR
                 // ensures that we don't run into 'Address already in use' errors
                 serverSocket.setReuseAddress(true);
                 // Wait for connection from client.
-                clientSocket = serverSocket.accept();
+                Socket clientSocket = serverSocket.accept();
 
-                InputStream input = clientSocket.getInputStream();
-                OutputStream output = clientSocket.getOutputStream();
-                Scanner sc = new Scanner(input);
-                System.out.println("====================================================================");
-                while(sc.hasNextLine()){
-                    String nextLine = sc.nextLine();
-                    if (nextLine.contains("PING")) {
-                        output.write("+PONG\r\n".getBytes(StandardCharsets.UTF_8));
-                    }
-                }
-                System.out.println("====================================================================");
+                Thread worker = new Thread(
+                        () -> handleClient(clientSocket)
+                );
+                worker.start();
 
             }
         } catch (IOException e) {
-            System.out.println("IOException: " + e.getMessage());
-        } finally {
-            try {
-                if (clientSocket != null) {
-                    clientSocket.close();
+            System.out.println("Server error: " + e.getMessage());
+        }
+    }
+
+    private static void handleClient(Socket client){
+        try (
+                client;
+                Scanner sc = new Scanner(
+                        client.getInputStream(),
+                        StandardCharsets.UTF_8
+                        );
+                ) {
+            OutputStream output = client.getOutputStream();
+
+
+            while(sc.hasNextLine()){
+                String nextLine = sc.nextLine();
+                if(nextLine.contains("PING")){
+                    output.write(
+                            "+PONG\r\n".getBytes(StandardCharsets.UTF_8)
+                    );
                 }
-            } catch (IOException e) {
-                System.out.println("IOException: " + e.getMessage());
+                output.flush();
             }
+        }catch (IOException e){
+            System.err.println("Client error: " + e.getMessage());
         }
     }
 }
